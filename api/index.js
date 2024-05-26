@@ -8,6 +8,7 @@ const cors = require("cors");
 const User = require("./models/UserModel");
 const Message = require("./models/MessageModel");
 const fs = require("fs");
+const https = require('https');
 
 dotenv.config();
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -137,20 +138,35 @@ app.post("/api/register", async (req, res) => {
 // });
 
 // WebSocket server setup
+// const wss = new (require("ws").Server)({ noServer: true });
+
+// module.exports = app;
+
+// if (process.env.NODE_ENV !== 'production') {
+//   const server = app.listen(4040, () => {
+//     console.log(`Server started on port 4040`);
+//   });
+
+//   server.on('upgrade', (request, socket, head) => {
+//     wss.handleUpgrade(request, socket, head, (ws) => {
+//       wss.emit('connection', ws, request);
+//     });
+//   });
+// WebSocket server setup
 const wss = new (require("ws").Server)({ noServer: true });
+module.exports = wss;
+const server = https.createServer({
+});
 
-module.exports = app;
+server.listen(process.env.PORT || 4040, () => {
+  console.log(`Server started on port ${server.address().port}`);
+});
 
-if (process.env.NODE_ENV !== 'production') {
-  const server = app.listen(4040, () => {
-    console.log(`Server started on port 4040`);
+server.on('upgrade', (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit('connection', ws, request);
   });
-
-  server.on('upgrade', (request, socket, head) => {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit('connection', ws, request);
-    });
-  });
+});
 
   wss.on("connection", (connection, req) => {
     const cookies = req.headers.cookie;
@@ -239,4 +255,4 @@ if (process.env.NODE_ENV !== 'production') {
     });
     notifyAboutOnlinePeople();
   });
-}
+
