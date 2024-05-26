@@ -19,12 +19,28 @@ app.use(cookieParser());
 
 const jwt_secret = process.env.JWT_SECRET_KEY;
 const bcryptSalt = bcrypt.genSaltSync(10);
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL,
-  })
-);
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin: process.env.CLIENT_URL,
+//   })
+// );
+const corsOptions = {
+  credentials: true,
+  origin: process.env.CLIENT_URL,
+};
+
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", process.env.CLIENT_URL);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
+
+app.options('*', cors(corsOptions)); // Enable pre-flight requests for all routes
 
 
 app.get("/", (req, res) => {
