@@ -23,7 +23,7 @@ export default function Chat() {
   }, []);
 
   function connectToWs() {
-    const ws = new WebSocket("ws://localhost:4040");
+    const ws = new WebSocket("wss://chat-app-back-end-khaki.vercel.app");
     setWs(ws);
     ws.addEventListener("message", handleMessage);
     ws.addEventListener("close", () => {

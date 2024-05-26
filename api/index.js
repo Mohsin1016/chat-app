@@ -32,7 +32,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.options('*', cors(corsOptions)); // Enable pre-flight requests for all routes
+app.options('*', cors(corsOptions));
 
 
 app.get("/", (req, res) => {
