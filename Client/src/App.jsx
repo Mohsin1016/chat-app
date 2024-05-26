@@ -3,7 +3,7 @@ import { UserContextProvider } from "./UserContext";
 import Routes from "./Routes";
 
 function App() {
-  axios.defaults.baseURL = "https://chat-app-back-end-khaki.vercel.app/api";
+  axios.defaults.baseURL = "https://chat-app-back-end-khaki.vercel.app";
   axios.defaults.withCredentials = true;
   return (
     <>
