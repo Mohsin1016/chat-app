@@ -23,7 +23,7 @@ export default function Chat() {
   }, []);
 
   function connectToWs() {
-    const ws = new WebSocket("https://chat-app-back-end-khaki.vercel.app");
+    const ws = new WebSocket("wss://chat-app-back-end-khaki.vercel.app"); // Change to wss://
     setWs(ws);
     ws.addEventListener("message", handleMessage);
     ws.addEventListener("close", () => {
@@ -33,6 +33,7 @@ export default function Chat() {
       }, 1000);
     });
   }
+  
 
   function showOnlinePeople(peopleArray) {
     const people = {};
