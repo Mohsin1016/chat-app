@@ -19,12 +19,7 @@ app.use(cookieParser());
 
 const jwt_secret = process.env.JWT_SECRET_KEY;
 const bcryptSalt = bcrypt.genSaltSync(10);
-// app.use(
-//   cors({
-//     credentials: true,
-//     origin: process.env.CLIENT_URL,
-//   })
-// );
+
 const corsOptions = {
   credentials: true,
   origin: process.env.CLIENT_URL,

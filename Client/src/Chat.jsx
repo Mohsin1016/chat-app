@@ -1,4 +1,5 @@
-import React, { useContext, useRef, useState, useEffect } from "react";
+import React, { useContext, useRef, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import Logo from "./Logo";
 import { uniqBy } from "lodash";
@@ -19,32 +20,17 @@ export default function Chat() {
 
   useEffect(() => {
     connectToWs();
-    return () => {
-      if (ws) {
-        ws.close();
-      }
-    };
   }, []);
 
   function connectToWs() {
-    const ws = new WebSocket("wss://chat-app-back-end-khaki.vercel.app");
+    const ws = new WebSocket("ws://localhost:4040");
     setWs(ws);
-
-    ws.addEventListener("open", () => {
-      console.log("WebSocket connection opened");
-    });
-
     ws.addEventListener("message", handleMessage);
-
     ws.addEventListener("close", () => {
-      console.log("WebSocket connection closed, trying to reconnect...");
       setTimeout(() => {
+        console.log("disconnected trying to reconnect.");
         connectToWs();
       }, 1000);
-    });
-
-    ws.addEventListener("error", (error) => {
-      console.error("WebSocket error", error);
     });
   }
 
@@ -58,21 +44,18 @@ export default function Chat() {
 
   function handleMessage(ev) {
     const messageData = JSON.parse(ev.data);
-    console.log({ ev, messageData });
+    console.log({ev,messageData});
     if ('online' in messageData) {
       showOnlinePeople(messageData.online);
     } else if ('text' in messageData) {
       if (messageData.sender === selectedUserId) {
-        setMessages(prev => ([...prev, { ...messageData }]));
+        setMessages(prev => ([...prev, {...messageData}]));
       }
     }
   }
 
   function logout() {
     axios.post("/logout").then(() => {
-      if (ws) {
-        ws.close();
-      }
       setWs(null);
       setId(null);
       setUserName(null);
@@ -80,17 +63,14 @@ export default function Chat() {
   }
 
   function sendMessage(ev, file = null) {
-    ev.preventDefault();
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      console.error("WebSocket is not open");
-      return;
-    }
-    const message = {
-      recipient: selectedUserId,
-      text: newMessageText,
-      file,
-    };
-    ws.send(JSON.stringify(message));
+    if (ev) ev.preventDefault();
+    ws.send(
+      JSON.stringify({
+        recipient: selectedUserId,
+        text: newMessageText,
+        file,
+      })
+    );
     if (file) {
       axios.get("/messages/" + selectedUserId).then((res) => {
         setMessages(res.data);
@@ -103,7 +83,7 @@ export default function Chat() {
           text: newMessageText,
           sender: id,
           recipient: selectedUserId,
-          _id: uuid,
+          _id: Date.now(),
         },
       ]);
     }
@@ -148,21 +128,20 @@ export default function Chat() {
     }
   }, [selectedUserId]);
 
-  const onlinePeopleExcludingOurUser = { ...onlinePeople };
-  delete onlinePeopleExcludingOurUser[id];
+  const onlinePeoplExcluOurUser = { ...onlinePeople };
+  delete onlinePeoplExcluOurUser[id];
   const messagesWithoutDupes = uniqBy(messages, "_id");
-
   return (
     <div className="flex h-screen">
-      <div className="bg-white w-1/3 flex flex-col">
+      <div className="bg-white w-1/3 flex flex-col ">
         <div className="flex-grow">
           <Logo />
-          {Object.keys(onlinePeopleExcludingOurUser).map((userId) => (
+          {Object.keys(onlinePeoplExcluOurUser).map((userId) => (
             <Contact
               key={userId}
               id={userId}
               online={true}
-              username={onlinePeopleExcludingOurUser[userId]}
+              username={onlinePeoplExcluOurUser[userId]}
               onClick={() => {
                 setSelectedUserId(userId);
               }}
@@ -292,7 +271,7 @@ export default function Chat() {
                 />
               </svg>
             </label>
-            <button className="bg-blue-500 text-white p-2" type="submit">
+            <button className="bg-blue-500  text-white p-2" type="submit">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
